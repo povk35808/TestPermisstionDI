@@ -37,46 +37,46 @@ const leaveDurations = ["មួយព្រឹក", "មួយរសៀល", "�
 // --- Date Helper Functions ---
 function getTodayString(format = 'yyyy-mm-dd') { const today = new Date(); const yyyy = today.getFullYear(); const mm = String(today.getMonth() + 1).padStart(2, '0'); const dd = String(today.getDate()).padStart(2, '0'); if (format === 'dd/mm/yyyy') return `${dd}/${mm}/${yyyy}`; return `${yyyy}-${mm}-${dd}`; }
 function formatDbDateToInput(dbDate) { if (!dbDate || dbDate.split('/').length !== 3) return getTodayString(); const parts = dbDate.split('/'); return `${parts[2]}-${parts[1]}-${parts[0]}`; }
-function formatInputDateToDb(inputDate) { if (!inputDate || inputDate.split('-').length !== 3) return getTodayString('dd/mm/yyyy'); const parts = inputDate.split('-'); return `${parts[2]}/${parts[1]}/${parts[0]}`; }
+function formatInputDateToDb(inputDate) { if (!inputDate || inputDate.split('-').length !== 3) return getTodayString('dd/mm/yyyy'); const parts = inputDate.split('-'); return `${parts[2]}/${parts[1]}-${parts[0]}`; }
 function addDays(startDateStr, days) { try { const date = new Date(startDateStr); if (isNaN(date.getTime())) return getTodayString(); date.setDate(date.getDate() + Math.ceil(days) - 1); const yyyy = date.getFullYear(); const mm = String(date.getMonth() + 1).padStart(2, '0'); const dd = String(date.getDate()).padStart(2, '0'); return `${yyyy}-${mm}-${dd}`; } catch (e) { console.error("Error in addDays:", e); return getTodayString(); } }
 function formatFirestoreTimestamp(timestamp, format = 'HH:mm dd/MM/yyyy') { let date; if (!timestamp) return ""; if (timestamp instanceof Date) date = timestamp; else if (timestamp.toDate) date = timestamp.toDate(); else if (typeof timestamp === 'string') { date = new Date(timestamp); if (isNaN(date.getTime())) return ""; } else if (timestamp.seconds) date = new Date(timestamp.seconds * 1000); else return ""; const hours = String(date.getHours()).padStart(2, '0'); const minutes = String(date.getMinutes()).padStart(2, '0'); const day = String(date.getDate()).padStart(2, '0'); const month = String(date.getMonth() + 1).padStart(2, '0'); const year = date.getFullYear(); if (format === 'HH:mm' || format === 'time') return `${hours}:${minutes}`; if (format === 'dd/MM/yyyy' || format === 'date') return `${day}/${month}/${year}`; return `${hours}:${minutes} ${day}/${month}/${year}`; }
 function parseReturnedAt_(returnedAtString) { if (!returnedAtString || typeof returnedAtString !== 'string') return { date: "", time: "" }; const parts = returnedAtString.split(' '); if (parts.length === 2) return { time: parts[0], date: parts[1] }; return { date: returnedAtString, time: "" }; }
 // ========== ចាប់ផ្តើមបន្ថែមនៅទីនេះ ==========
 function formatDateToDdMmmYyyy(dateString) {
-    // dateString គឺ 'dd/mm/yyyy' (ឧ. '31/10/2025')
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    let date;
-    
-    if (dateString.includes('/') && dateString.split('/').length === 3) { // dd/mm/yyyy
-        const parts = dateString.split('/');
-        date = new Date(parts[2], parts[1] - 1, parts[0]); // year, month (0-indexed), day
-    } else {
-        date = new Date(); // Fallback
-    }
+    // dateString គឺ 'dd/mm/yyyy' (ឧ. '31/10/2025')
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    let date;
+    
+    if (dateString.includes('/') && dateString.split('/').length === 3) { // dd/mm/yyyy
+        const parts = dateString.split('/');
+        date = new Date(parts[2], parts[1] - 1, parts[0]); // year, month (0-indexed), day
+    } else {
+        date = new Date(); // Fallback
+    }
 
-    if (isNaN(date.getTime())) date = new Date(); // Error handling
+    if (isNaN(date.getTime())) date = new Date(); // Error handling
 
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = monthNames[date.getMonth()];
-    const year = date.getFullYear();
-    return `${day}-${month}-${year}`; // ត្រឡប់ជា '31-Oct-2025'
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`; // ត្រឡប់ជា '31-Oct-2025'
 }
 
 function parseDdMmmYyyyToInputFormat(ddMmmYyyy) {
-    // បំប្លែង '31-Oct-2025' ទៅ '2025-10-31' សម្រាប់ <input type="date">
-    if (!ddMmmYyyy || ddMmmYyyy.split('-').length !== 3) return getTodayString(); // fallback
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const parts = ddMmmYyyy.split('-'); // [ '31', 'Oct', '2025' ]
-    if(parts.length !== 3) return getTodayString();
+    // បំប្លែង '31-Oct-2025' ទៅ '2025-10-31' សម្រាប់ <input type="date">
+    if (!ddMmmYyyy || ddMmmYyyy.split('-').length !== 3) return getTodayString(); // fallback
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const parts = ddMmmYyyy.split('-'); // [ '31', 'Oct', '2025' ]
+    if(parts.length !== 3) return getTodayString();
 
-    const day = parts[0];
-    const monthIndex = monthNames.indexOf(parts[1]);
-    const year = parts[2];
+    const day = parts[0];
+    const monthIndex = monthNames.indexOf(parts[1]);
+    const year = parts[2];
 
-    if (monthIndex === -1) return getTodayString(); // fallback
+    if (monthIndex === -1) return getTodayString(); // fallback
 
-    const mm = String(monthIndex + 1).padStart(2, '0');
-    return `${year}-${mm}-${day}`; // ត្រឡប់ជា 'yyyy-mm-dd'
+    const mm = String(monthIndex + 1).padStart(2, '0');
+    return `${year}-${mm}-${day}`; // ត្រឡប់ជា 'yyyy-mm-dd'
 }
 // ========== បញ្ចប់ការបន្ថែមនៅទីនេះ ==========
 
@@ -201,8 +201,114 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- History Page Logic (Real-time) ---
     function setupHistoryListeners(currentEmployeeId) { console.log("Setting up history listeners for employee ID:", currentEmployeeId); if (historyUnsubscribe) historyUnsubscribe(); if (outHistoryUnsubscribe) outHistoryUnsubscribe(); if (!db || !currentEmployeeId) return console.error("Firestore DB not initialized or Employee ID not set."); const now = new Date(); const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1); const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1); const startTimestamp = Timestamp.fromDate(startOfMonth); const endTimestamp = Timestamp.fromDate(endOfMonth); try { const leaveQuery = query(collection(db, leaveRequestsCollectionPath), where("userId", "==", currentEmployeeId), where("requestedAt", ">=", startTimestamp), where("requestedAt", "<", endTimestamp)); console.log("Querying Leave Requests for current month..."); historyUnsubscribe = onSnapshot(leaveQuery, (snapshot) => { console.log(`Received LEAVE snapshot. Size: ${snapshot.size}`); renderHistoryList(snapshot, historyContainerLeave, historyPlaceholderLeave, 'leave'); }, (error) => { console.error("Error listening to LEAVE history:", error); if (historyPlaceholderLeave) { historyPlaceholderLeave.innerHTML = `<p class="text-red-500">Error: មិនអាចទាញយកប្រវត្តិបានទេ ${error.code.includes('permission-denied') ? '(Permission Denied)' : (error.code.includes('requires an index') ? '(ត្រូវបង្កើត Index សូមមើល Console)' : '')}</p>`; historyPlaceholderLeave.classList.remove('hidden'); } }); } catch (e) { console.error("Failed to create LEAVE history query:", e); if (historyPlaceholderLeave) historyPlaceholderLeave.innerHTML = `<p class="text-red-500">Error: ${e.message}</p>`; historyPlaceholderLeave.classList.remove('hidden'); } try { const outQuery = query(collection(db, outRequestsCollectionPath), where("userId", "==", currentEmployeeId), where("requestedAt", ">=", startTimestamp), where("requestedAt", "<", endTimestamp)); console.log("Querying Out Requests for current month..."); outHistoryUnsubscribe = onSnapshot(outQuery, (snapshot) => { console.log(`Received OUT snapshot. Size: ${snapshot.size}`); renderHistoryList(snapshot, historyContainerOut, historyPlaceholderOut, 'out'); }, (error) => { console.error("Error listening to OUT history:", error); if (historyPlaceholderOut) { historyPlaceholderOut.innerHTML = `<p class="text-red-500">Error: មិនអាចទាញយកប្រវត្តិបានទេ ${error.code.includes('permission-denied') ? '(Permission Denied)' : (error.code.includes('requires an index') ? '(ត្រូវបង្កើត Index សូមមើល Console)' : '')}</p>`; historyPlaceholderOut.classList.remove('hidden'); } }); } catch (e) { console.error("Failed to create OUT history query:", e); if (historyPlaceholderOut) historyPlaceholderOut.innerHTML = `<p class="text-red-500">Error: ${e.message}</p>`; historyPlaceholderOut.classList.remove('hidden'); } }
     function getSortPriority(status) { switch(status) { case 'pending': return 1; case 'editing': return 2; case 'approved': return 3; case 'rejected': return 4; default: return 5; } }
-    function renderHistoryList(snapshot, container, placeholder, type) { if (!container || !placeholder) return; if (snapshot.empty) { placeholder.classList.remove('hidden'); container.innerHTML = ''; } else { placeholder.classList.add('hidden'); container.innerHTML = ''; const requests = []; snapshot.forEach(doc => requests.push(doc.data())); requests.sort((a, b) => { const priorityA = getSortPriority(a.status); const priorityB = getSortPriority(b.status); if (priorityA !== priorityB) return priorityA - priorityB; const timeA = a.requestedAt?.toMillis() ?? 0; const timeB = b.requestedAt?.toMillis() ?? 0; return timeB - timeA; }); requests.forEach(request => container.innerHTML += renderHistoryCard(request, type)); } }
+    
+    // ========== START: MODIFIED FUNCTION (Smart Feature) ==========
+    function renderHistoryList(snapshot, container, placeholder, type) {
+        if (!container || !placeholder) return;
+        
+        const requests = []; // ប្រកាស requests នៅទីនេះ
+        
+        if (snapshot.empty) {
+            placeholder.classList.remove('hidden');
+            container.innerHTML = '';
+            // snapshot.forEach មិនដំណើរការ ដូច្នេះ requests array គឺនៅទទេ
+        } else {
+            placeholder.classList.add('hidden');
+            container.innerHTML = '';
+            snapshot.forEach(doc => requests.push(doc.data()));
+            
+            // តម្រៀប requests ដូចមុន
+            requests.sort((a, b) => {
+                const priorityA = getSortPriority(a.status);
+                const priorityB = getSortPriority(b.status);
+                if (priorityA !== priorityB) return priorityA - priorityB;
+                const timeA = a.requestedAt?.toMillis() ?? 0;
+                const timeB = b.requestedAt?.toMillis() ?? 0;
+                return timeB - timeA;
+            });
+
+            requests.forEach(request => container.innerHTML += renderHistoryCard(request, type));
+        }
+
+        // ========== ចាប់ផ្តើមការកែប្រែនៅទីនេះ ==========
+        // បន្ទាប់ពី render បញ្ជី, ធ្វើការពិនិត្យដើម្បីបិទ/បើកប៊ូតុងនៅទំព័រដើម
+        
+        if (type === 'leave') {
+            // ពិនិត្យ 'ច្បាប់ឈប់សម្រាក'
+            // យើងពិនិត្យរក status 'pending' ឬ 'editing'
+            const hasPendingLeave = !snapshot.empty && (requests[0].status === 'pending' || requests[0].status === 'editing');
+            updateLeaveButtonState(hasPendingLeave);
+
+        } else if (type === 'out') {
+            // ពិនិត្យ 'ច្បាប់ចេញក្រៅ'
+            let hasActiveOut = false;
+            if (!snapshot.empty) {
+                // 1. ពិនិត្យរក 'pending' ឬ 'editing' (ដែលស្ថិតនៅកំពូលបន្ទាប់ពី sort)
+                if (requests[0].status === 'pending' || requests[0].status === 'editing') {
+                    hasActiveOut = true;
+                } else {
+                    // 2. បើមិនមាន pending, ពិនិត្យរក 'approved' តែ 'មិនទាន់ចូលវិញ'
+                    //    យើងប្រើ .some() ដើម្បីរកមើលក្នុង array ទាំងមូល
+                    hasActiveOut = requests.some(r => r.status === 'approved' && r.returnStatus !== 'បានចូលមកវិញ');
+                }
+            }
+            updateOutButtonState(hasActiveOut);
+        }
+        // ========== បញ្ចប់ការកែប្រែនៅទីនេះ ==========
+    }
+    // ========== END: MODIFIED FUNCTION ==========
+    
     function renderHistoryCard(request, type) { if (!request || !request.requestId) return ''; let statusColor, statusText, decisionInfo = ''; switch(request.status) { case 'approved': statusColor = 'bg-green-100 text-green-800'; statusText = 'បានយល់ព្រម'; if (request.decisionAt) decisionInfo = `<p class="text-xs text-green-600 mt-1">នៅម៉ោង: ${formatFirestoreTimestamp(request.decisionAt, 'time')}</p>`; break; case 'rejected': statusColor = 'bg-red-100 text-red-800'; statusText = 'បានបដិសេធ'; if (request.decisionAt) decisionInfo = `<p class="text-xs text-red-600 mt-1">នៅម៉ោង: ${formatFirestoreTimestamp(request.decisionAt, 'time')}</p>`; break; case 'editing': statusColor = 'bg-blue-100 text-blue-800'; statusText = 'កំពុងកែសម្រួល'; break; default: statusColor = 'bg-yellow-100 text-yellow-800'; statusText = 'កំពុងរង់ចាំ'; } const dateString = (request.startDate === request.endDate) ? request.startDate : (request.startDate && request.endDate ? `${request.startDate} ដល់ ${request.endDate}` : 'N/A'); const showActions = (request.status === 'pending' || request.status === 'editing'); let returnInfo = ''; let returnButton = ''; if (type === 'out') { if (request.returnStatus === 'បានចូលមកវិញ') returnInfo = `<p class="text-sm font-semibold text-green-700 mt-2">✔️ បានចូលមកវិញ: ${request.returnedAt || ''}</p>`; else if (request.status === 'approved') returnButton = `<button data-id="${request.requestId}" class="return-btn w-full mt-3 py-2 px-3 bg-green-600 text-white rounded-lg font-semibold text-sm shadow-sm hover:bg-green-700">បញ្ជាក់ចូលមកវិញ</button>`; } let invoiceButton = ''; if (request.status === 'approved') invoiceButton = `<button data-id="${request.requestId}" data-type="${type}" class="invoice-btn mt-3 py-1.5 px-3 bg-indigo-100 text-indigo-700 rounded-md font-semibold text-xs shadow-sm hover:bg-indigo-200 w-full sm:w-auto">ពិនិត្យមើលវិក័យប័ត្រ</button>`; return `<div class="bg-white border border-gray-200 rounded-lg shadow-sm p-4 mb-4"><div class="flex justify-between items-start"><span class="font-semibold text-gray-800">${request.duration || 'N/A'}</span><span class="text-xs font-medium px-2 py-0.5 rounded-full ${statusColor}">${statusText}</span></div><p class="text-sm text-gray-600 mt-1">${dateString}</p><p class="text-sm text-gray-500 mt-1"><b>មូលហេតុ:</b> ${request.reason || 'មិនបានបញ្ជាក់'}</p>${decisionInfo}${returnInfo}<div class="mt-3 pt-3 border-t border-gray-100"><div class="flex flex-wrap justify-between items-center gap-2"><p class="text-xs text-gray-400">ID: ${request.requestId}</p>${showActions ? `<div class="flex space-x-2"><button data-id="${request.requestId}" data-type="${type}" class="edit-btn p-1 text-blue-600 hover:text-blue-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button data-id="${request.requestId}" data-type="${type}" class="delete-btn p-1 text-red-600 hover:text-red-800"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div>` : ''}${invoiceButton}</div>${returnButton}</div></div>`; }
+
+    // ========== START: NEW FUNCTIONS (Smart Feature) ==========
+
+    /**
+     * ធ្វើបច្ចុប្បន្នភាពប៊ូតុង "សុំច្បាប់ឈប់" នៅទំព័រដើម
+     * @param {boolean} isDisabled - True ប្រសិនបើត្រូវបិទ, False ប្រសិនបើត្រូវបើក
+     */
+    function updateLeaveButtonState(isDisabled) {
+        // openLeaveRequestBtn គឺជាអថេរ global ដែលបានប្រកាសនៅខាងលើរួចហើយ
+        if (!openLeaveRequestBtn) return; 
+        
+        const leaveBtnText = openLeaveRequestBtn.querySelector('p.text-xs');
+
+        if (isDisabled) {
+            openLeaveRequestBtn.disabled = true;
+            // ប្រើ bg-gray-100 ដើម្បីឲ្យមើលទៅដូច disabled
+            openLeaveRequestBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+            openLeaveRequestBtn.classList.remove('bg-blue-50', 'hover:bg-blue-100');
+            if (leaveBtnText) leaveBtnText.textContent = 'មានសំណើកំពុងរង់ចាំ';
+        } else {
+            openLeaveRequestBtn.disabled = false;
+            openLeaveRequestBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+            openLeaveRequestBtn.classList.add('bg-blue-50', 'hover:bg-blue-100');
+            if (leaveBtnText) leaveBtnText.textContent = 'ឈប់សម្រាក';
+        }
+    }
+
+    /**
+     * ធ្វើបច្ចុប្បន្នភាពប៊ូតុង "សុំច្បាប់ចេញក្រៅ" នៅទំព័រដើម
+     * @param {boolean} isDisabled - True ប្រសិនបើត្រូវបិទ, False ប្រសិនបើត្រូវបើក
+     */
+    function updateOutButtonState(isDisabled) {
+        // openOutRequestBtn គឺជាអថេរ global ដែលបានប្រកាសនៅខាងលើរួចហើយ
+        if (!openOutRequestBtn) return;
+
+        const outBtnText = openOutRequestBtn.querySelector('p.text-xs');
+
+        if (isDisabled) {
+            openOutRequestBtn.disabled = true;
+            openOutRequestBtn.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+            openOutRequestBtn.classList.remove('bg-green-50', 'hover:bg-green-100');
+            if (outBtnText) outBtnText.textContent = 'មានសំណើកំពុងដំណើរការ';
+        } else {
+            openOutRequestBtn.disabled = false;
+            openOutRequestBtn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-100');
+            openOutRequestBtn.classList.add('bg-green-50', 'hover:bg-green-100');
+            if (outBtnText) outBtnText.textContent = 'ចេញក្រៅផ្ទាល់ខ្លួន';
+        }
+    }
+    // ========== END: NEW FUNCTIONS ==========
 
     // --- Edit Modal Logic ---
     async function openEditModal(requestId, type) { if (!db || !requestId || !type) return; const collectionPath = (type === 'leave') ? leaveRequestsCollectionPath : outRequestsCollectionPath; if (!collectionPath) return; if (editLoadingEl) editLoadingEl.classList.remove('hidden'); if (editErrorEl) editErrorEl.classList.add('hidden'); if (editModal) editModal.classList.remove('hidden'); try { const requestRef = doc(db, collectionPath, requestId); await updateDoc(requestRef, { status: 'editing' }); console.log("Request status set to 'editing'"); const docSnap = await getDoc(requestRef); if (!docSnap.exists()) throw new Error("Document not found"); const data = docSnap.data(); if (editModalTitle) editModalTitle.textContent = (type === 'leave') ? "កែសម្រួលច្បាប់ឈប់" : "កែសម្រួលច្បាប់ចេញក្រៅ"; if (editRequestId) editRequestId.value = requestId; if (editReasonSearch) editReasonSearch.value = data.reason || ''; if (editDurationSearch) editDurationSearch.value = data.duration; setupSearchableDropdown('edit-duration-search', 'edit-duration-dropdown', (type === 'leave' ? leaveDurationItems : outDurationItems), () => {}, false); setupSearchableDropdown('edit-reason-search', 'edit-reason-dropdown', (type === 'leave' ? leaveReasonItems : outReasonItems), () => {}, true); if (type === 'leave') { if (singleDayLeaveDurations.includes(data.duration)) { if (editSingleDateContainer) editSingleDateContainer.classList.remove('hidden'); if (editDateRangeContainer) editDateRangeContainer.classList.add('hidden'); if (editLeaveDateSingle) editLeaveDateSingle.value = data.startDate; } else { if (editSingleDateContainer) editSingleDateContainer.classList.add('hidden'); if (editDateRangeContainer) editDateRangeContainer.classList.remove('hidden'); if (editLeaveDateStart) editLeaveDateStart.value = parseDdMmmYyyyToInputFormat(data.startDate); if (editLeaveDateEnd) editLeaveDateEnd.value = parseDdMmmYyyyToInputFormat(data.endDate); } } else { if (editSingleDateContainer) editSingleDateContainer.classList.remove('hidden'); if (editDateRangeContainer) editDateRangeContainer.classList.add('hidden'); if (editLeaveDateSingle) editLeaveDateSingle.value = data.startDate; } if (editLoadingEl) editLoadingEl.classList.add('hidden'); } catch (e) { console.error("Error opening edit modal:", e); if (editLoadingEl) editLoadingEl.classList.add('hidden'); if (editErrorEl) { editErrorEl.textContent = `Error: ${e.message}`; editErrorEl.classList.remove('hidden'); } } }
@@ -226,7 +332,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // --- INVOICE MODAL LOGIC ---
     function hideInvoiceModal() { if (invoiceModal) invoiceModal.classList.add('hidden'); if (invoiceShareStatus) invoiceShareStatus.textContent = ''; if (shareInvoiceBtn) shareInvoiceBtn.disabled = false; }
-    async function openInvoiceModal(requestId, type) { console.log(`--- Attempting to open invoice for ${type} request ID: ${requestId} ---`); if (!db || !requestId || !type) { showCustomAlert("Error", "មិនអាចបើកវិក័យប័ត្របានទេ (Missing ID or Type)"); return; } const collectionPath = (type === 'leave') ? leaveRequestsCollectionPath : outRequestsCollectionPath; if (!collectionPath) { showCustomAlert("Error", "មិនអាចបើកវិក័យប័ត្របានទេ (Invalid Collection Path)"); return; } if (!invoiceModal) { console.error("Invoice modal element not found!"); return; } invoiceModal.classList.remove('hidden'); if(invoiceUserName) invoiceUserName.textContent='កំពុងទាញយក...'; if(invoiceUserId) invoiceUserId.textContent='...'; if(invoiceUserDept) invoiceUserDept.textContent='...'; if(invoiceRequestType) invoiceRequestType.textContent='...'; if(invoiceDuration) invoiceDuration.textContent='...'; if(invoiceDates) invoiceDates.textContent='...'; if(invoiceReason) invoiceReason.textContent='...'; if(invoiceApprover) invoiceApprover.textContent='...'; if(invoiceDecisionTime) invoiceDecisionTime.textContent='...'; if(invoiceRequestId) invoiceRequestId.textContent='...'; if(invoiceReturnInfo) invoiceReturnInfo.classList.add('hidden'); if(shareInvoiceBtn) shareInvoiceBtn.disabled = true; try { const docRef = doc(db, collectionPath, requestId); console.log("Fetching Firestore doc:", docRef.path); const docSnap = await getDoc(docRef); if (!docSnap.exists()) { throw new Error("រកមិនឃើញសំណើរនេះទេ។"); } console.log("Firestore doc found."); const data = docSnap.data(); const requestTypeText = (type === 'leave') ? 'ច្បាប់ឈប់សម្រាក' : 'ច្បាប់ចេញក្រៅ'; const decisionTimeText = formatFirestoreTimestamp(data.decisionAt || data.requestedAt); const dateRangeText = (data.startDate === data.endDate) ? data.startDate : `${data.startDate} ដល់ ${data.endDate}`; if(invoiceModalTitle) invoiceModalTitle.textContent = `វិក័យប័ត្រ - ${requestTypeText}`; if(invoiceUserName) invoiceUserName.textContent = data.name || 'N/A'; if(invoiceUserId) invoiceUserId.textContent = data.userId || 'N/A'; if(invoiceUserDept) invoiceUserDept.textContent = data.department || 'N/A'; if(invoiceRequestType) invoiceRequestType.textContent = requestTypeText; if(invoiceDuration) invoiceDuration.textContent = data.duration || 'N/A'; if(invoiceDates) invoiceDates.textContent = dateRangeText; if(invoiceReason) invoiceReason.textContent = data.reason || 'N/A'; if(invoiceApprover) invoiceApprover.textContent = "លោកគ្រូ ពៅ ដារ៉ូ"; if(invoiceDecisionTime) invoiceDecisionTime.textContent = decisionTimeText; if(invoiceRequestId) invoiceRequestId.textContent = data.requestId || requestId; if (type === 'out' && data.returnStatus === 'បានចូលមកវិញ') { if (invoiceReturnStatus) invoiceReturnStatus.textContent = data.returnStatus; if (invoiceReturnTime) invoiceReturnTime.textContent = data.returnedAt || 'N/A'; if (invoiceReturnInfo) invoiceReturnInfo.classList.remove('hidden'); } else { if (invoiceReturnInfo) invoiceReturnInfo.classList.add('hidden'); } if(shareInvoiceBtn) { shareInvoiceBtn.dataset.requestId = data.requestId || requestId; shareInvoiceBtn.dataset.userName = data.name || 'User'; shareInvoiceBtn.dataset.requestType = requestTypeText; shareInvoiceBtn.disabled = false; } console.log("Invoice modal populated."); } catch (error) { console.error("Error opening/populating invoice modal:", error); hideInvoiceModal(); showCustomAlert("Error", `មិនអាចផ្ទុកទិន្នន័យវិក័យប័ត្របានទេ: ${error.message}`); } }
+    async function openInvoiceModal(requestId, type) { console.log(`--- Attempting to open invoice for ${type} request ID: ${requestId} ---`); if (!db || !requestId || !type) { showCustomAlert("Error", "មិនអាចបើកវិក័យប័ត្របានទេ (Missing ID or Type)"); return; } const collectionPath = (type === 'leave') ? leaveRequestsCollectionPath : outRequestsCollectionPath; if (!collectionPath) { showCustomAlert("Error", "មិនអាចបើកវិក័យប័ត្របានទេ (Invalid Collection Path)"); return; } if (!invoiceModal) { console.error("Invoice modal element not found!"); return; } invoiceModal.classList.remove('hidden'); if(invoiceUserName) invoiceUserName.textContent='កំពុងទាញយក...'; if(invoiceUserId) invoiceUserId.textContent='...'; if(invoiceUserDept) invoiceUserDept.textContent='...'; if(invoiceRequestType) invoiceRequestType.textContent='...'; if(invoiceDuration) invoiceDuration.textContent='...'; if(invoiceDates) invoiceDates.textContent='...'; if(invoiceReason) invoiceReason.textContent='...'; if(invoiceApprover) invoiceApprover.textContent='...'; if(invoiceDecisionTime) invoiceDecisionTime.textContent='...'; if(invoiceRequestId) invoiceRequestId.textContent='...'; if(invoiceReturnInfo) invoiceReturnInfo.classList.add('hidden'); if(shareInvoiceBtn) shareInvoiceBtn.disabled = true; try { const docRef = doc(db, collectionPath, requestId); console.log("Fetching Firestore doc:", docRef.path); const docSnap = await getDoc(docRef); if (!docSnap.exists()) { throw new Error("រកមិនឃើញសំណើរនេះទេ។"); } console.log("Firestore doc found."); const data = docSnap.data(); const requestTypeText = (type === 'leave') ? 'ច្បាប់ឈប់សម្រាក' : 'ច្បាប់ចេញក្រៅ'; const decisionTimeText = formatFirestoreTimestamp(data.decisionAt || data.requestedAt); const dateRangeText = (data.startDate === data.endDate) ? data.startDate : `${data.startDate} ដល់ ${data.endDate}`; if(invoiceModalTitle) invoiceModalTitle.textContent = `វិក័យប័ត្រ - ${requestTypeText}`; if(invoiceUserName) invoiceUserName.textContent = data.name || 'N/A'; if(invoiceUserId) invoiceUserId.textContent = data.userId || 'N/A'; if(invoiceUserDept) invoiceUserDept.textContent = data.department || 'N/A'; if(invoiceRequestType) invoiceRequestType.textContent = requestTypeText; if(invoiceDuration) invoiceDuration.textContent = data.duration || 'N/A'; if(invoiceDates) invoiceDates.textContent = dateRangeText; if(invoiceReason) invoiceReason.textContent = data.reason || 'N/Examples/N/A'; if(invoiceApprover) invoiceApprover.textContent = "លោកគ្រូ ពៅ ដារ៉ូ"; if(invoiceDecisionTime) invoiceDecisionTime.textContent = decisionTimeText; if(invoiceRequestId) invoiceRequestId.textContent = data.requestId || requestId; if (type === 'out' && data.returnStatus === 'បានចូលមកវិញ') { if (invoiceReturnStatus) invoiceReturnStatus.textContent = data.returnStatus; if (invoiceReturnTime) invoiceReturnTime.textContent = data.returnedAt || 'N/A'; if (invoiceReturnInfo) invoiceReturnInfo.classList.remove('hidden'); } else { if (invoiceReturnInfo) invoiceReturnInfo.classList.add('hidden'); } if(shareInvoiceBtn) { shareInvoiceBtn.dataset.requestId = data.requestId || requestId; shareInvoiceBtn.dataset.userName = data.name || 'User'; shareInvoiceBtn.dataset.requestType = requestTypeText; shareInvoiceBtn.disabled = false; } console.log("Invoice modal populated."); } catch (error) { console.error("Error opening/populating invoice modal:", error); hideInvoiceModal(); showCustomAlert("Error", `មិនអាចផ្ទុកទិន្នន័យវិក័យប័ត្របានទេ: ${error.message}`); } }
     async function shareInvoiceAsImage() { if (!invoiceContent || typeof html2canvas === 'undefined' || !shareInvoiceBtn) { showCustomAlert("Error", "មុខងារ Share មិនទាន់រួចរាល់ ឬ Library បាត់។"); return; } if(invoiceShareStatus) invoiceShareStatus.textContent = 'កំពុងបង្កើតរូបភាព...'; shareInvoiceBtn.disabled = true; try { if(invoiceContentWrapper) invoiceContentWrapper.scrollTop = 0; await new Promise(resolve => setTimeout(resolve, 100)); const canvas = await html2canvas(invoiceContent, { scale: 2, useCORS: true, logging: false }); canvas.toBlob(async (blob) => { if (!blob) { throw new Error("មិនអាចបង្កើតរូបភាព Blob បានទេ។"); } if(invoiceShareStatus) invoiceShareStatus.textContent = 'កំពុងព្យាយាម Share...'; if (navigator.share && navigator.canShare) { const fileName = `Invoice_${shareInvoiceBtn.dataset.requestId || 'details'}.png`; const file = new File([blob], fileName, { type: blob.type }); const shareData = { files: [file], title: `វិក័យប័ត្រសុំច្បាប់ (${shareInvoiceBtn.dataset.requestType || ''})`, text: `វិក័យប័ត្រសុំច្បាប់សម្រាប់ ${shareInvoiceBtn.dataset.userName || ''} (ID: ${shareInvoiceBtn.dataset.requestId || ''})`, }; if (navigator.canShare(shareData)) { try { await navigator.share(shareData); console.log('Invoice shared successfully via Web Share API'); if(invoiceShareStatus) invoiceShareStatus.textContent = 'Share ជោគជ័យ!'; } catch (err) { console.error('Web Share API error:', err); if(invoiceShareStatus) invoiceShareStatus.textContent = 'Share ត្រូវបានបោះបង់។'; if (err.name !== 'AbortError') showCustomAlert("Share Error", "មិនអាច Share បានតាម Web Share API។ សូមព្យាយាមម្តងទៀត។"); } } else { console.warn('Web Share API cannot share this data.'); if(invoiceShareStatus) invoiceShareStatus.textContent = 'មិនអាច Share file បាន។'; showCustomAlert("Share Error", "Browser នេះមិនគាំទ្រការ Share file ទេ។ សូមធ្វើការ Screenshot ដោយដៃ។"); } } else { console.warn('Web Share API not supported.'); if(invoiceShareStatus) invoiceShareStatus.textContent = 'Web Share មិនដំណើរការ។'; showCustomAlert("សូម Screenshot", "Browser នេះមិនគាំទ្រ Web Share API ទេ។ សូមធ្វើការ Screenshot វិក័យប័ត្រនេះដោយដៃ រួច Share ទៅ Telegram។"); } shareInvoiceBtn.disabled = false; }, 'image/png'); } catch (error) { console.error("Error generating or sharing invoice image:", error); if(invoiceShareStatus) invoiceShareStatus.textContent = 'Error!'; showCustomAlert("Error", `មានបញ្ហាក្នុងការបង្កើត ឬ Share រូបភាព: ${error.message}`); shareInvoiceBtn.disabled = false; } }
 
     // === Logic ថ្មី​សម្រាប់​ទំព័រ​វត្តមាន ===
